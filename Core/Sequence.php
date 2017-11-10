@@ -10,6 +10,9 @@ namespace Core;
 class Sequence
 {
 
+    /**
+     * SYSTEM CATEGORY
+     */
     const DEFAULT = 00000;
     const MEMBER  = 10001;
     const USER    = 10002;
@@ -20,16 +23,16 @@ class Sequence
      *
      * @param int $categoryId 序號的類別 ID
      *
-     * @return string 系統產生的流水號
+     * @return string|null 系統產生的流水號
      * @throws \RuntimeException
      *
      * @author Lucars <lucars@gmail.com>
      */
-    public static function generate(int $categoryId) : string
+    public static function generate(int $categoryId) : ?string
     {
         try
         {
-            // 鎖死 UTC + 0
+            // UTC + 0
             ini_set( 'date.timezone', 'UTC' );
 
             // 防止單一進程多次要求同類ID, 產生碰撞的問題
@@ -47,13 +50,13 @@ class Sequence
             // 缺少分類 Id
             if ( ! $categoryId)
             {
-                throw new \RuntimeException('Missing categoryId');
+                throw new \RuntimeException('CID Error.');
             }
 
             // 缺少系統 Id
             if ( ! $hostName)
             {
-                throw new \RuntimeException('Missing hostName');
+                throw new \RuntimeException('HN Error.');
             }
 
             // 微秒(10-6)
@@ -85,7 +88,7 @@ class Sequence
             {
                 echo $e->getMessage();
             }
-            return '';
+            return null;
         }
     }
 
@@ -98,7 +101,7 @@ class Sequence
      */
     public static function parse(string $sequence) : array
     {
-        if( strlen($sequence) == 30)
+        if (strlen($sequence) == 30)
         {
             return array(
                 'category' => (int) substr($sequence, 0, 5),
